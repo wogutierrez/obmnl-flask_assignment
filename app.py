@@ -58,6 +58,43 @@ def edit_transaction(transaction_id):
     return {"message": "Transaction not found"}, 404
 
 # Delete operation
+@app.route("/delete/<int:transaction_id>")
+def delete_transaction(transaction_id):
+    for transaction in transactions:
+        if transaction['id'] == transaction_id:
+            transactions.remove(transaction)
+            break
+    
+    return redirect(url_for("get_transactions"))
+
+# Search 
+@app.route("/search", methods=["GET","POST"])
+def search_transactions():
+    if request.method == "POST":
+        min = float(request.form['min_amount'])
+        max = float(request.form['max_amount'])
+        filtered_transactions = []
+
+        for transaction in transactions:
+            if transaction['amount'] <= max and transaction['amount'] >= min: 
+                filtered_transactions.append(transaction)
+
+        return render_template("transactions.html", transactions=filtered_transactions)
+
+    return render_template("search.html")
+
+@app.route("/balance")
+def total_balance():
+    balance = 0
+    for transaction in transactions:
+        balance += transaction['amount'] 
+    
+    return {"balance": balance}
+    
+    return render_template("transactions.html", transactions=transactions, balance=balance)
+
 
 # Run the Flask app
+if __name__ == "__main__":
+    app.run(debug=True)
     
